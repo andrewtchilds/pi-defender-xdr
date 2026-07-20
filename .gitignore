@@ -1,0 +1,15 @@
+# Dependencies and generated artifacts
+node_modules/
+coverage/
+*.log
+*.tgz
+
+# Local secrets and configuration
+.env
+.env.*
+!.env.example
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/

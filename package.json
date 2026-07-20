@@ -1,0 +1,70 @@
+{
+  "name": "pi-defender-xdr",
+  "version": "0.1.0",
+  "description": "Microsoft Defender XDR Advanced Hunting extension and investigation skills for pi",
+  "type": "module",
+  "license": "MIT",
+  "author": "Andrew Childs",
+  "homepage": "https://github.com/andrewtchilds/pi-defender-xdr#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andrewtchilds/pi-defender-xdr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/andrewtchilds/pi-defender-xdr/issues"
+  },
+  "keywords": [
+    "pi-package",
+    "microsoft-defender-xdr",
+    "advanced-hunting",
+    "kql"
+  ],
+  "files": [
+    "extensions",
+    "skills",
+    "schema-snapshot",
+    "scripts",
+    "README.md",
+    "SECURITY.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "LICENSE"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ],
+    "skills": [
+      "./skills"
+    ]
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "update:schema": "node scripts/update-schema-snapshot.mjs",
+    "test:tenant": "node scripts/test-real-tenant.mjs",
+    "verify": "npm run check && npm test && npm audit --omit=dev",
+    "pack:check": "npm pack --dry-run",
+    "prepack": "npm run check && npm test"
+  },
+  "dependencies": {
+    "@azure/msal-node": "5.4.1",
+    "@azure/msal-node-extensions": "5.3.3",
+    "open": "11.0.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.80.10",
+    "@types/node": "24.0.15",
+    "typebox": "1.3.6",
+    "typescript": "7.0.2",
+    "vitest": "4.1.10"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
