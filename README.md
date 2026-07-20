@@ -21,7 +21,7 @@ The signed-in user must separately have applicable Microsoft Defender Unified RB
 
 ## Install
 
-Requires Node.js 20 or newer and a trusted package source. Pi packages execute with the user's system permissions; review the source before installation.
+Requires Node.js 20 or newer and a trusted package source. On Linux, the `libsecret-1` runtime library must be installed (for example, `libsecret-1-0` on Debian/Ubuntu). Pi packages execute with the user's system permissions; review the source before installation.
 
 Install from GitHub:
 
