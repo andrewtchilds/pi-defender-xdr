@@ -7,11 +7,11 @@ A pi package for Microsoft Defender XDR Advanced Hunting. Use it to run hunting 
 
 ## Prerequisites
 
-You need a Microsoft Entra public client app registration. Configure the registration as follows:
+You need a Microsoft Entra app registration in your tenant. Configure the registration as follows:
 
 1. Add the **Mobile and desktop applications** platform with the redirect URI `http://localhost`.
 2. Enable public client flows.
-3. Add the delegated Microsoft Graph permission **ThreatHunting.Read.All**.
+3. Add the **delegated** Microsoft Graph permission **ThreatHunting.Read.All**.
 4. Grant tenant admin consent.
 5. Record the tenant ID and client ID.
 
@@ -23,14 +23,6 @@ Install the package from GitHub:
 
 ```bash
 pi install git:github.com/andrewtchilds/pi-defender-xdr
-```
-
-To inspect a local checkout before installation:
-
-```bash
-git clone https://github.com/andrewtchilds/pi-defender-xdr.git
-cd pi-defender-xdr
-pi install .
 ```
 
 For development:
@@ -81,8 +73,6 @@ The package includes four investigation skills:
 - `defender-xdr-endpoint-investigation` — Process, network, file, registry, sign-in, and device investigations.
 - `defender-xdr-identity-investigation` — Entra, service principal, directory, and cloud account investigations.
 - `defender-xdr-messaging-investigation` — Email, Teams, attachment, URL, click, and delivery investigations.
-
-Load a skill with `/skill:<name>`, or let pi select one based on the task.
 
 ## References
 

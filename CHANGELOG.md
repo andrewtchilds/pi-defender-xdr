@@ -9,6 +9,7 @@
 - Added an exact interactive Entra sign-in fast path and moved extended identity queries to on-demand references
 - Relaxed routine schema lookups when a verified query pattern already supplies known names and semantics
 - Shortened skill routing descriptions
+- Reworked investigation skills around a shared evidence funnel, checkable completion criteria, truncation-aware reporting, and on-demand domain query references
 
 ## 0.1.0 - 2026-07-13
 
