@@ -15,7 +15,8 @@ Load and apply `defender-xdr-investigation` first; its hard guardrails, evidence
 - Resolve display names and UPNs to `AccountObjectId`, and application names to stable application/service-principal IDs, before multi-table pivots.
 - Separate failed authentication, successful authentication, token/session activity, and post-authentication actions.
 - MFA required is distinct from MFA completed. Sign-in success is distinct from Conditional Access success; inspect the corresponding fields per event.
-- Establish a bounded baseline before describing a country, IP, client, device, application, or action as unusual.
+- Risk fields are not interchangeable. In `RiskLevelAggregated`, `0` means not set and `1` means none. A null or absent tenant-specific field such as `RiskLevelDuringSignIn` is unknown/unset, not evidence of no risk. Verify current tenant columns rather than denying a field solely because it is absent from bundled documentation.
+- Establish a bounded baseline before describing a country, IP, client, device, application, or action as unusual. Never call one event routine, benign, anomalous, or malicious without comparison evidence sufficient for that classification.
 
 ## Fast path: recent interactive sign-ins
 

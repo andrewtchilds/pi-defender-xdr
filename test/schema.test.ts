@@ -1,4 +1,4 @@
-import { mkdtemp, stat } from "node:fs/promises";
+import { mkdtemp, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -6,7 +6,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import type { XdrAuth } from "../extensions/defender-xdr/auth.js";
 import type { CommandRuntime } from "../extensions/defender-xdr/commands/types.js";
 import type { XdrConfig } from "../extensions/defender-xdr/config.js";
-import { findSchemaTable, getLiveTableColumns, loadSchemaSnapshot, searchSchema } from "../extensions/defender-xdr/schema.js";
+import { findSchemaTable, getLiveTableColumns, loadSchemaSnapshot, searchCachedLiveSchema, searchSchema } from "../extensions/defender-xdr/schema.js";
 import { registerSchemaTool } from "../extensions/defender-xdr/tools/schema.js";
 
 afterEach(() => vi.unstubAllGlobals());
@@ -30,6 +30,26 @@ describe("Defender XDR schema", () => {
     const process = await findSchemaTable("deviceprocessevents");
     expect(process?.columns.some((column) => column.name === "ProcessCommandLine")).toBe(true);
     expect(searchSchema(snapshot, "command line").some((match) => match.table === "DeviceProcessEvents")).toBe(true);
+  });
+
+  it("searches tenant-cached columns that are absent from the bundled snapshot without querying", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "pi-xdr-schema-search-"));
+    const cachePath = join(directory, "schema-cache.json");
+    await writeFile(cachePath, JSON.stringify({
+      version: 1,
+      tables: {
+        entraidsigninevents: {
+          fetchedAt: "2026-07-13T21:43:45.140Z",
+          columns: [{ name: "RiskLevelDuringSignIn", type: "Int32" }],
+        },
+      },
+    }));
+
+    await expect(searchCachedLiveSchema("RiskLevelDuringSignIn", 20, cachePath)).resolves.toEqual([{
+      table: "entraidsigninevents",
+      fetchedAt: "2026-07-13T21:43:45.140Z",
+      matchingColumns: [{ name: "RiskLevelDuringSignIn", type: "Int32" }],
+    }]);
   });
 
   it("marks superseded tables as retired", async () => {

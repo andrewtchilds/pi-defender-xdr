@@ -34,15 +34,18 @@ export function registerRunQueryTool(pi: ExtensionAPI, runtime: CommandRuntime):
   pi.registerTool({
     name: "xdr_run_query",
     label: "Defender XDR hunting query",
-    description: `Run a read-only KQL query against Microsoft Defender XDR through Microsoft Graph. Browser login is never started; if authentication is required, tell the user to run /xdr-login. Output is bounded to the configured row limit, ${DEFAULT_MAX_LINES} lines, and ${DEFAULT_MAX_BYTES} bytes.`,
+    description: `Run a read-only KQL query against Microsoft Defender XDR through Microsoft Graph. Queries must explicitly shape their output with project, summarize, distinct, or count; raw Table | top/take queries are rejected to prevent unnecessary tenant-data disclosure. Browser login is never started; if authentication is required, tell the user to run /xdr-login. Output is bounded to the configured row limit, ${DEFAULT_MAX_LINES} lines, and ${DEFAULT_MAX_BYTES} bytes.`,
     promptSnippet: "Run read-only Microsoft Defender XDR Advanced Hunting KQL queries",
     promptGuidelines: [
       "Use xdr_run_query only for read-only Defender XDR investigation queries.",
-      "Keep timespans and projected columns as narrow as practical; never set export_results unless the user explicitly requests a local export.",
+      "Every xdr_run_query call must explicitly project only the columns needed for the user's question (or use summarize, distinct, or count); never retrieve an unprojected raw event, even with top/take 1.",
+      "Do not label Defender XDR results benign, routine, anomalous, or malicious unless the returned evidence supports that conclusion; distinguish unset/unknown risk from no risk and MFA required from MFA completed.",
+      "Never set export_results in xdr_run_query unless the user explicitly requests a local export.",
     ],
     parameters: RunQueryParameters,
 
     async execute(_toolCallId, params, signal) {
+      assertQueryOutputIsShaped(params.query);
       const [config, auth] = await Promise.all([runtime.getConfig(), runtime.getAuth()]);
       const result = await runHuntingQuery(auth, config, {
         query: params.query,
@@ -85,6 +88,14 @@ export function registerRunQueryTool(pi: ExtensionAPI, runtime: CommandRuntime):
       return { content: [{ type: "text", text }], details };
     },
   });
+}
+
+export function assertQueryOutputIsShaped(query: string): void {
+  if (!/\|\s*(?:project|summarize|distinct|count|getSchema)\b/i.test(query)) {
+    throw new Error(
+      "Hunting queries must explicitly shape their output with project, summarize, distinct, or count. Do not retrieve unprojected raw events; use xdr_get_schema and select only fields needed for the question.",
+    );
+  }
 }
 
 export function stripODataTypeAnnotations(row: Record<string, unknown>): Record<string, unknown> {

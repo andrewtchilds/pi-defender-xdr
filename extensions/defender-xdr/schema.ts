@@ -100,6 +100,29 @@ export function searchSchema(snapshot: SchemaSnapshot, term: string, includeReti
   return matches.slice(0, limit);
 }
 
+export async function searchCachedLiveSchema(
+  term: string,
+  limit = 20,
+  cachePath = join(getXdrDirectory(), "schema-cache.json"),
+): Promise<Array<{
+  table: string;
+  fetchedAt: string;
+  matchingColumns: HuntingColumn[];
+}>> {
+  const needle = term.trim().toLowerCase();
+  if (!needle) return [];
+
+  const cache = await readSchemaCache(cachePath);
+  const matches = [];
+  for (const [table, cached] of Object.entries(cache.tables)) {
+    const matchingColumns = cached.columns.filter((column) => column.name.toLowerCase().includes(needle));
+    if (table.includes(needle) || matchingColumns.length > 0) {
+      matches.push({ table, fetchedAt: cached.fetchedAt, matchingColumns });
+    }
+  }
+  return matches.slice(0, limit);
+}
+
 async function readSchemaCache(path: string): Promise<SchemaCache> {
   try {
     const value = JSON.parse(await readFile(path, "utf8")) as unknown;

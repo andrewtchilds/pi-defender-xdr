@@ -6,7 +6,7 @@ import { DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, type ExtensionAPI } from "@earend
 import type { XdrAuth } from "../extensions/defender-xdr/auth.js";
 import type { CommandRuntime } from "../extensions/defender-xdr/commands/types.js";
 import type { XdrConfig } from "../extensions/defender-xdr/config.js";
-import { exportHuntingResult, registerRunQueryTool } from "../extensions/defender-xdr/tools/run-query.js";
+import { assertQueryOutputIsShaped, exportHuntingResult, registerRunQueryTool } from "../extensions/defender-xdr/tools/run-query.js";
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -26,6 +26,15 @@ function runtime(): CommandRuntime {
 }
 
 describe("xdr_run_query tool", () => {
+  it("rejects unprojected raw-event queries before accessing the tenant", async () => {
+    expect(() => assertQueryOutputIsShaped("EntraIdSignInEvents | top 1 by Timestamp desc"))
+      .toThrow("must explicitly shape their output");
+    expect(() => assertQueryOutputIsShaped("EntraIdSignInEvents | project Timestamp, AccountObjectId | top 1 by Timestamp desc"))
+      .not.toThrow();
+    expect(() => assertQueryOutputIsShaped("EntraIdSignInEvents | summarize count() by ErrorCode"))
+      .not.toThrow();
+  });
+
   it("returns compact rows without redundant schema or OData type annotations", async () => {
     let tool: any;
     registerRunQueryTool({ registerTool: (definition: unknown) => { tool = definition; } } as ExtensionAPI, runtime());
@@ -34,7 +43,7 @@ describe("xdr_run_query tool", () => {
       results: [{ "Events@odata.type": "#Int64", Events: 3 }],
     }), { status: 200 })));
 
-    const result = await tool.execute("call", { query: "DeviceInfo", max_rows: 1 }, undefined, undefined, {});
+    const result = await tool.execute("call", { query: "DeviceInfo | project Events", max_rows: 1 }, undefined, undefined, {});
     const text = result.content[0].text as string;
     expect(text).toBe('{"totalRows":1,"displayedRows":1,"rowsTruncated":false,"results":[{"Events":3}]}');
     expect(text).not.toContain("schema");
@@ -50,7 +59,7 @@ describe("xdr_run_query tool", () => {
       results: [],
     }), { status: 200 })));
 
-    const result = await tool.execute("call", { query: "DeviceInfo" }, undefined, undefined, {});
+    const result = await tool.execute("call", { query: "DeviceInfo | project Timestamp" }, undefined, undefined, {});
     expect(result.content[0].text).toContain('"schema":[{"name":"Timestamp","type":"DateTime"}]');
   });
 
@@ -63,7 +72,7 @@ describe("xdr_run_query tool", () => {
       results: [wideRow, { value: "second" }],
     }), { status: 200 })));
 
-    const result = await tool.execute("call", { query: "DeviceInfo", max_rows: 10 }, undefined, undefined, {});
+    const result = await tool.execute("call", { query: "DeviceInfo | project value", max_rows: 10 }, undefined, undefined, {});
     const text = result.content[0].text as string;
     expect(result.details).toMatchObject({ totalRows: 2, displayedRows: 1, rowsTruncated: true, outputTruncated: true });
     expect(Buffer.byteLength(text)).toBeLessThanOrEqual(DEFAULT_MAX_BYTES);

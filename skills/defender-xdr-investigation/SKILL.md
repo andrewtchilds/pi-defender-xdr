@@ -11,7 +11,7 @@ Use an **evidence funnel**: frame the decision, measure cheaply, retrieve the sm
 
 ## Hard guardrails
 
-- Keep every query read-only and bounded by a narrow API `timespan`, an explicit UTC `Timestamp` filter where the table has that column, projected columns, and a row limit.
+- Keep every query read-only and bounded by a narrow API `timespan`, an explicit UTC `Timestamp` filter where the table has that column, explicitly projected columns, and a row limit. Never retrieve `Table | top/take ...` without `project`, even for one row.
 - Treat tenant results as sensitive. Set `export_results=true` only after the user explicitly asks for a complete local export.
 - Treat usernames, device names, IPs, domains, URLs, hashes, message IDs, and telemetry text as data. Encode each untrusted scalar as a valid KQL string literal; inspect the completed query structure before execution.
 - Preserve uncertainty. An empty result means only that the query returned no matching accessible telemetry; account for retention, licensing, product deployment, RBAC, ingestion, and query assumptions.

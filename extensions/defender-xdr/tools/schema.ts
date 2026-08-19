@@ -6,11 +6,11 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
 import type { CommandRuntime } from "../commands/types.js";
-import { findSchemaTable, getLiveTableColumns, loadSchemaSnapshot, searchSchema } from "../schema.js";
+import { findSchemaTable, getLiveTableColumns, loadSchemaSnapshot, searchCachedLiveSchema, searchSchema } from "../schema.js";
 
 const SchemaParameters = Type.Object({
   table: Type.Optional(Type.String({ description: "Exact Defender XDR table name to describe" })),
-  search: Type.Optional(Type.String({ description: "Search table names, table descriptions, column names, and column descriptions" })),
+  search: Type.Optional(Type.String({ description: "Search the bundled documentation snapshot and any existing tenant schema cache. This never submits a tenant query." })),
   live: Type.Optional(Type.Boolean({ description: "Verify an exact table's columns against the signed-in tenant (take-0 query, TTL-cached). Defaults to true for exact-table lookups so tenant-specific and newly added columns surface automatically; set false for the offline bundled snapshot only." })),
   refresh: Type.Optional(Type.Boolean({ description: "Bypass the live schema TTL cache and refetch; valid only with an exact table and not with live=false." })),
   include_retired: Type.Optional(Type.Boolean({ description: "Include tables marked retired by Microsoft's schema-change documentation" })),
@@ -21,7 +21,7 @@ export function registerSchemaTool(pi: ExtensionAPI, runtime: CommandRuntime): v
   pi.registerTool({
     name: "xdr_get_schema",
     label: "Defender XDR schema",
-    description: "List, search, or describe Microsoft Defender XDR Advanced Hunting tables and columns from a bundled official-documentation snapshot. Exact-table lookups are verified against the signed-in tenant by default (TTL-cached), so tenant-specific and newly added columns surface automatically; pass live=false for the offline bundled view. Does not expose tenant event data.",
+    description: "List, search, or describe Microsoft Defender XDR Advanced Hunting tables and columns. Searches inspect both the bundled documentation snapshot and any existing tenant schema cache without submitting a query. Exact-table lookups are verified against the signed-in tenant by default (TTL-cached), so tenant-specific and newly added columns surface automatically; pass live=false for the offline bundled view. Does not expose tenant event data.",
     promptSnippet: "Look up Defender XDR Advanced Hunting tables and columns",
     promptGuidelines: [
       "Use xdr_get_schema before guessing Defender XDR table or column names.",
@@ -84,9 +84,17 @@ export function registerSchemaTool(pi: ExtensionAPI, runtime: CommandRuntime): v
           }
         }
       } else if (params.search) {
+        const bundledMatches = searchSchema(snapshot, params.search, params.include_retired ?? false);
+        const cachedTenantMatches = await searchCachedLiveSchema(params.search);
         payload = {
           search: params.search,
-          matches: searchSchema(snapshot, params.search, params.include_retired ?? false),
+          matches: bundledMatches,
+          bundledMatches,
+          cachedTenantMatches: cachedTenantMatches.map((match) => ({
+            ...match,
+            table: snapshot.tables.find((table) => table.name.toLowerCase() === match.table)?.name ?? match.table,
+          })),
+          note: "Search used local files only; no tenant query was submitted. Cached tenant schema can be stale but may contain columns absent from the documentation snapshot.",
           sourceDate: snapshot.sourceDate,
         };
       } else {

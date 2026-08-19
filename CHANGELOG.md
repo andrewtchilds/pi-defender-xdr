@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed schema search to include the existing tenant schema cache without submitting a query
+- Reject unprojected raw-event hunting queries and strengthen evidence-interpretation guidance
 - Added GitHub repository metadata, CI, contribution guidance, and dependency updates
 - Added a sovereign-cloud authority environment override and stale config temp-file cleanup
 - Reduced model context usage with compact schema and query tool results
