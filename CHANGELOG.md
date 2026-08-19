@@ -11,6 +11,7 @@
 - Verify exact-table schema lookups against the signed-in tenant by default so tenant-specific and newly added columns (for example `RiskLevelDuringSignIn` on `EntraIdSignInEvents`) surface without an explicit flag; `live=false` restores the offline bundled view and live failures fall back to the bundled snapshot with a flag
 - Shortened skill routing descriptions
 - Reworked investigation skills around a shared evidence funnel, checkable completion criteria, truncation-aware reporting, and on-demand domain query references
+- Resolved all dependency advisories, including bumping the pi-coding-agent dev dependency to pull patched undici, brace-expansion, protobufjs, postcss, and nanoid (all dev-only; runtime dependencies were unaffected)
 
 ## 0.1.0 - 2026-07-13
 
