@@ -45,13 +45,57 @@ describe("Defender XDR schema", () => {
     const listed = await tool.execute("list", {}, undefined, undefined, {});
     expect(listed.content[0].text).toContain("DeviceProcessEvents");
     expect(listed.content[0].text).not.toContain('"name": "AIAgentsInfo"');
-    const described = await tool.execute("describe", { table: "AlertInfo" }, undefined, undefined, {});
+    const described = await tool.execute("describe", { table: "AlertInfo", live: false }, undefined, undefined, {});
     expect(described.content[0].text).toContain("AlertId");
     expect(described.content[0].text).not.toContain("Unique identifier for the alert");
     expect(described.content[0].text).not.toContain("\n");
-    const verbose = await tool.execute("describe", { table: "AlertInfo", verbose: true }, undefined, undefined, {});
+    const verbose = await tool.execute("describe", { table: "AlertInfo", verbose: true, live: false }, undefined, undefined, {});
     expect(verbose.content[0].text).toContain("Unique identifier for the alert");
     expect(localRuntime.getAuth).not.toHaveBeenCalled();
+  });
+
+  it("auto-verifies an exact table against the tenant by default and merges live columns", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "pi-xdr-schema-tool-"));
+    const previousDir = process.env.PI_CODING_AGENT_DIR;
+    process.env.PI_CODING_AGENT_DIR = directory;
+    try {
+      const fetchMock = vi.fn(async () => new Response(JSON.stringify({ schema: [{ name: "AlertId", type: "String" }, { name: "BrandNewLiveColumn", type: "String" }], results: [] }), { status: 200 }));
+      vi.stubGlobal("fetch", fetchMock);
+      let tool: any;
+      const localRuntime = runtime();
+      registerSchemaTool({ registerTool: (definition: unknown) => { tool = definition; } } as ExtensionAPI, localRuntime);
+
+      const described = await tool.execute("describe", { table: "AlertInfo" }, undefined, undefined, {});
+      const text = described.content[0].text as string;
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(text).toContain("BrandNewLiveColumn");
+      expect(text).toContain("liveVerification");
+      expect(text).toContain('"cached":false');
+    } finally {
+      if (previousDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
+      else process.env.PI_CODING_AGENT_DIR = previousDir;
+    }
+  });
+
+  it("falls back to the bundled snapshot when live verification fails", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "pi-xdr-schema-fail-"));
+    const previousDir = process.env.PI_CODING_AGENT_DIR;
+    process.env.PI_CODING_AGENT_DIR = directory;
+    try {
+      const fetchMock = vi.fn(async () => new Response("boom", { status: 500 }));
+      vi.stubGlobal("fetch", fetchMock);
+      let tool: any;
+      registerSchemaTool({ registerTool: (definition: unknown) => { tool = definition; } } as ExtensionAPI, runtime());
+
+      const described = await tool.execute("describe", { table: "AlertInfo" }, undefined, undefined, {});
+      const text = described.content[0].text as string;
+      expect(text).toContain("AlertId");
+      expect(text).toContain('"status":"failed"');
+      expect(text).toContain("may be incomplete");
+    } finally {
+      if (previousDir === undefined) delete process.env.PI_CODING_AGENT_DIR;
+      else process.env.PI_CODING_AGENT_DIR = previousDir;
+    }
   });
 
   it("rejects retired tables by default with replacement guidance", async () => {

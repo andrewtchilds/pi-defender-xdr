@@ -8,6 +8,7 @@
 - Omit redundant result schemas and OData type annotations when rows are returned
 - Added an exact interactive Entra sign-in fast path and moved extended identity queries to on-demand references
 - Relaxed routine schema lookups when a verified query pattern already supplies known names and semantics
+- Verify exact-table schema lookups against the signed-in tenant by default so tenant-specific and newly added columns (for example `RiskLevelDuringSignIn` on `EntraIdSignInEvents`) surface without an explicit flag; `live=false` restores the offline bundled view and live failures fall back to the bundled snapshot with a flag
 - Shortened skill routing descriptions
 - Reworked investigation skills around a shared evidence funnel, checkable completion criteria, truncation-aware reporting, and on-demand domain query references
 
