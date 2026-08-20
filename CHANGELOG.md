@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.1 - 2026-08-19
+
 - Include the cached tenant schema in schema searches without submitting a query
 - Reject raw-event hunting queries that do not project columns
 - Clarify how investigation skills should interpret evidence

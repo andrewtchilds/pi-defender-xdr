@@ -1,6 +1,6 @@
 {
   "name": "pi-defender-xdr",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Microsoft Defender XDR Advanced Hunting extension and investigation skills for pi",
   "type": "module",
   "license": "MIT",
