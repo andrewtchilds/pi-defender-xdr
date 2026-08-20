@@ -40,7 +40,7 @@ DeviceProcessEvents
 | take 200
 ```
 
-## Inspect a process spine
+## Inspect a process chain
 
 First query the target record. Then use its process unique ID as the initiating process unique ID to retrieve direct children.
 
@@ -87,7 +87,7 @@ DeviceProcessEvents
 | take 500
 ```
 
-## Pivot file, registry, or logon satellites
+## Pivot to file, registry, or logon events
 
 Keep only the branch relevant to the hypothesis.
 

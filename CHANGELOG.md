@@ -2,18 +2,21 @@
 
 ## Unreleased
 
-- Fixed schema search to include the existing tenant schema cache without submitting a query
-- Reject unprojected raw-event hunting queries and strengthen evidence-interpretation guidance
-- Added GitHub repository metadata, CI, contribution guidance, and dependency updates
-- Added a sovereign-cloud authority environment override and stale config temp-file cleanup
-- Reduced model context usage with compact schema and query tool results
-- Omit redundant result schemas and OData type annotations when rows are returned
-- Added an exact interactive Entra sign-in fast path and moved extended identity queries to on-demand references
-- Relaxed routine schema lookups when a verified query pattern already supplies known names and semantics
-- Verify exact-table schema lookups against the signed-in tenant by default so tenant-specific and newly added columns (for example `RiskLevelDuringSignIn` on `EntraIdSignInEvents`) surface without an explicit flag; `live=false` restores the offline bundled view and live failures fall back to the bundled snapshot with a flag
-- Shortened skill routing descriptions
-- Reworked investigation skills around a shared evidence funnel, checkable completion criteria, truncation-aware reporting, and on-demand domain query references
-- Resolved all dependency advisories, including bumping the pi-coding-agent dev dependency to pull patched undici, brace-expansion, protobufjs, postcss, and nanoid (all dev-only; runtime dependencies were unaffected)
+- Include the cached tenant schema in schema searches without submitting a query
+- Reject raw-event hunting queries that do not project columns
+- Clarify how investigation skills should interpret evidence
+- Add repository metadata, CI, contribution guidance, and dependency updates
+- Add a sovereign-cloud authority override
+- Remove stale configuration temp files
+- Reduce model context use with compact schema and query results
+- Omit result schemas and OData type annotations when rows already provide that information
+- Add a fast path for exact interactive Entra sign-in queries
+- Move longer identity queries to references that load on demand
+- Skip routine schema lookups when a verified query pattern supplies the table and column semantics
+- Verify exact-table schema lookups against the signed-in tenant by default. This exposes tenant-specific and newly added columns such as `RiskLevelDuringSignIn` on `EntraIdSignInEvents`. Set `live=false` to use the bundled snapshot. If live verification fails, the tool returns the bundled snapshot and flags the fallback.
+- Shorten skill routing descriptions
+- Give all investigation skills the same evidence funnel, completion checks, truncation rules, and on-demand query references
+- Resolve all dependency advisories. The pi-coding-agent development dependency now pulls patched versions of undici, brace-expansion, protobufjs, postcss, and nanoid. Runtime dependencies were unaffected.
 
 ## 0.1.0 - 2026-07-13
 

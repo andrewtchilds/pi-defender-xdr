@@ -3,11 +3,11 @@
 [![CI](https://github.com/andrewtchilds/pi-defender-xdr/actions/workflows/ci.yml/badge.svg)](https://github.com/andrewtchilds/pi-defender-xdr/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-A pi package for Microsoft Defender XDR Advanced Hunting. Use it to run hunting queries, inspect the hunting schema, export results, and guide investigations.
+A pi package for Microsoft Defender XDR Advanced Hunting. It runs hunting queries, inspects the tenant schema, exports results on request, and adds investigation skills for endpoint, identity, email, Teams, and cross-domain cases.
 
 ## Prerequisites
 
-You need a Microsoft Entra app registration in your tenant. Configure the registration as follows:
+Create a Microsoft Entra app registration in your tenant, then configure it:
 
 1. Add the **Mobile and desktop applications** platform with the redirect URI `http://localhost`.
 2. Enable public client flows.
@@ -69,10 +69,10 @@ To sign out, run:
 
 The package includes four investigation skills:
 
-- `defender-xdr-investigation` — Cross-domain triage, pivots, timelines, and reporting.
-- `defender-xdr-endpoint-investigation` — Process, network, file, registry, sign-in, and device investigations.
-- `defender-xdr-identity-investigation` — Entra, service principal, directory, and cloud account investigations.
-- `defender-xdr-messaging-investigation` — Email, Teams, attachment, URL, click, and delivery investigations.
+- `defender-xdr-investigation` handles cross-domain triage, pivots, timelines, and reporting.
+- `defender-xdr-endpoint-investigation` handles processes, network connections, files, the registry, sign-ins, and device scope.
+- `defender-xdr-identity-investigation` handles Entra sign-ins, service principals, directory changes, and cloud accounts.
+- `defender-xdr-messaging-investigation` handles email, Teams, attachments, URLs, clicks, and delivery.
 
 ## References
 

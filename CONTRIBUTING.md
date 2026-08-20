@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions are welcome. Keep the package read-only, least-privileged, and safe for sensitive tenant data.
+Keep the package read-only and least-privileged. Treat all tenant data as sensitive.
 
 ## Development
 
@@ -12,17 +12,17 @@ npm run verify
 npm run pack:check
 ```
 
-Normal tests must not access a Microsoft tenant or open a browser. Real-tenant validation is explicitly opt-in with `npm run test:tenant` after `/xdr-login` and must remain excluded from CI and packaging.
+Normal tests must not access a Microsoft tenant or open a browser. To run the opt-in tenant tests, sign in with `/xdr-login`, then run `npm run test:tenant`. Do not add these tests to CI or the package.
 
 ## Schema snapshot changes
 
-Refresh the bundled schema only when intentionally reviewing Microsoft documentation changes:
+Refresh the bundled schema only when you intend to review changes in Microsoft's documentation:
 
 ```bash
 npm run update:schema
 ```
 
-Review the source commit, table status overrides, table and column counts, and the complete generated diff before committing it. Do not add tenant-derived schema or event data to the repository.
+Before committing the snapshot, review the source commit, table status overrides, table and column counts, and the full generated diff. Never add schema or event data from a tenant to the repository.
 
 ## Pull requests
 

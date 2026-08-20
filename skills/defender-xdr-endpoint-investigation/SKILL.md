@@ -5,9 +5,9 @@ license: MIT
 compatibility: Requires the pi-defender-xdr extension, /xdr-login, and access to Defender for Endpoint hunting tables.
 ---
 
-# Defender XDR Endpoint Investigation
+# Defender XDR endpoint investigation
 
-Load and apply `defender-xdr-investigation` first; its hard guardrails, evidence funnel, ledger, stop conditions, and report contract control this investigation. This skill supplies the endpoint branch.
+Load and apply `defender-xdr-investigation` first. Its guardrails, query process, ledger, stop conditions, and report format apply here. This skill adds the endpoint-specific steps.
 
 ## Endpoint invariants
 
@@ -21,13 +21,13 @@ Load and apply `defender-xdr-investigation` first; its hard guardrails, evidence
 
 1. **Anchor the device.** Resolve the supplied device name, ID, IP, or alert evidence against the investigation interval. Record onboarding/sensor state where available. Continue when one or more candidate `DeviceId` values are recorded and ambiguity is explicit.
 
-2. **Build the process spine.** Identify the target process, its parent, children, account, command line, hash, creation time, integrity/elevation, and unique IDs. Search the smallest interval that captures the chain. Continue when each relationship has direct unique-ID evidence, a time-constrained weaker correlation, or a named telemetry gap.
+2. **Build the process chain.** Identify the target process, its parent, children, account, command line, hash, creation time, integrity or elevation, and unique IDs. Search the smallest interval that captures the chain. Continue when each relationship has direct unique-ID evidence, a weaker time-constrained correlation, or a named telemetry gap.
 
-3. **Add hypothesis-driven satellites.** Pivot only to relevant network, file, image-load, registry, logon, or miscellaneous device events. Keep process/device keys and a tight causal interval. Continue when each suspicious behavior in the hypothesis has supporting or contradictory telemetry, or a coverage gap.
+3. **Query related telemetry.** Pivot only to network, file, image-load, registry, logon, or other device events that test the hypothesis. Keep the process and device keys, and use a tight causal interval. Continue when telemetry supports or contradicts each suspicious behavior, or record a coverage gap.
 
-4. **Scope blast radius.** Aggregate strong hashes, destinations, accounts, or persistence artifacts across devices before retrieving records. Exclude weak strings such as a common filename unless combined with stronger context. Continue when affected device/account counts and first/last seen are known within the chosen bounds.
+4. **Scope affected devices and accounts.** Aggregate strong hashes, destinations, accounts, or persistence artifacts across devices before retrieving records. Do not scope on weak strings such as a common filename unless stronger context accompanies them. Continue when the counts and first or last seen times are known within the chosen bounds.
 
-5. **Test prevalence and administration context.** Compare signer/company/path, historical device prevalence, software deployment, remote administration, and expected management tooling. Public IPs may represent proxies, CDNs, VPNs, or shared services; rare or unsigned binaries and LOLBin use are leads. Continue when the strongest benign alternative has been tested or its unavailable source is recorded.
+5. **Test prevalence and administration context.** Compare the signer, company, path, historical device prevalence, software deployment, remote administration, and expected management tools. Public IPs may belong to proxies, CDNs, VPNs, or shared services. Rare or unsigned binaries and LOLBin use are leads, not verdicts. Continue after testing the strongest benign alternative or recording why the required source is unavailable.
 
 6. **Return the endpoint ledger.** Emit ordered UTC events with `DeviceId`, process unique IDs, hashes, accounts, and source tables. Include clock/correlation tolerance where timestamps from different tables are linked.
 

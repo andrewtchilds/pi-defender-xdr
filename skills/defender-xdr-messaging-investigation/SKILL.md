@@ -5,9 +5,9 @@ license: MIT
 compatibility: Requires the pi-defender-xdr extension, /xdr-login, and access to Defender for Office 365 hunting tables.
 ---
 
-# Defender XDR Messaging Investigation
+# Defender XDR messaging investigation
 
-Load and apply `defender-xdr-investigation` first; its hard guardrails, evidence funnel, ledger, stop conditions, and report contract control this investigation. This skill supplies the messaging branch.
+Load and apply `defender-xdr-investigation` first. Its guardrails, query process, ledger, stop conditions, and report format apply here. This skill adds the messaging-specific steps.
 
 ## Messaging invariants
 
@@ -21,15 +21,15 @@ Load and apply `defender-xdr-investigation` first; its hard guardrails, evidence
 
 1. **Resolve the message.** Map the supplied ID, sender, recipient, URL, hash, or alert evidence to stable message IDs inside the UTC interval. Continue when candidate message IDs are recorded and weaker matches are labeled.
 
-2. **Reconstruct delivery.** Record sender identities/infrastructure, recipients or recipient counts, original and latest delivery fields, detections, authentication context, attachment hashes, and contained URLs. Continue when each message's delivery state is evidenced or missing fields are named.
+2. **Reconstruct delivery.** Record sender identities and infrastructure, recipients or recipient counts, original and latest delivery fields, detections, authentication context, attachment hashes, and contained URLs. Continue when telemetry establishes each message's delivery state or the report names the missing fields.
 
 3. **Verify remediation.** Retrieve post-delivery actions and inspect `ActionResult` for each affected message/recipient. Continue when current state is supported by the latest available event rather than inferred from action presence.
 
-4. **Measure exposure and impact.** Aggregate delivered recipients first, then retrieve only relevant identities. Correlate clicks by message ID; inspect `ActionType` and `IsClickedThrough`. Use the identity or endpoint skill for post-click activity. Continue when delivered, clicked, click-through, and follow-on impact are separately counted or marked unknown.
+4. **Measure exposure and impact.** Count delivered recipients first, then retrieve only relevant identities. Correlate clicks by message ID. Inspect `ActionType` and `IsClickedThrough`. Use the identity or endpoint skill for activity after the click. Continue when the report gives separate counts for delivery, clicks, click-through, and later impact, or marks each unknown value.
 
 5. **Scope the cluster.** Aggregate strong indicators such as attachment hashes, normalized URL/domain, sender infrastructure, or campaign ID before raw retrieval. Subject-only or display-name-only clusters remain weak. Continue when related message and recipient counts, first/last seen, and clustering basis are recorded.
 
-6. **Challenge classification.** Compare historical legitimate traffic, forwarding/services that alter SPF/DKIM/DMARC, URL rewriting/redirects, shared mailbox/list behavior, and duplicated messages. Continue when the strongest benign explanation has evidence for or against it, or an explicit coverage gap.
+6. **Challenge classification.** Compare historical legitimate traffic, forwarding services that alter SPF, DKIM, or DMARC, URL rewriting and redirects, shared mailbox or list behavior, and duplicate messages. Continue when evidence supports or contradicts the strongest benign explanation, or record the coverage gap.
 
 7. **Return the messaging ledger.** Build an ordered UTC chain from receipt through delivery changes, clicks, alerts, and post-delivery results, preserving stable message and report IDs.
 
