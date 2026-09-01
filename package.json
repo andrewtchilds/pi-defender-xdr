@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@azure/msal-node": "5.4.1",
-    "@azure/msal-node-extensions": "5.3.3",
+    "@azure/msal-node-extensions": "5.5.0",
     "open": "11.0.0"
   },
   "peerDependencies": {
